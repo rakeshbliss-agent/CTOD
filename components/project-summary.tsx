@@ -10,18 +10,29 @@ export function ProjectSummary({ project }: { project: Project }) {
             <h3 className="text-base font-semibold">{project.name}</h3>
             <span className="badge bg-slate-100 text-slate-700">{project.stage}</span>
           </div>
+
           <div className="mt-2 text-sm text-slate-600">
             {project.indication} · {project.templateName} · {project.pdfCount} PDF(s)
           </div>
+
           <div className="mt-2 text-sm text-slate-500">
             {project.fields.length} configured fields · {project.extractedFields.length} extracted review items
           </div>
         </div>
+
         <div className="flex flex-wrap gap-2">
-          <Link href={`/projects/${project.id}/configure`} className="button-secondary">Configure</Link>
-          <Link href={`/projects/${project.id}/extract`} className="button-secondary">Extract</Link>
-          <Link href={`/projects/${project.id}/review`} className="button-secondary">Review</Link>
-          <Link href={`/projects/${project.id}/publish`} className="button-primary">Publish</Link>
+          <Link href={`/projects/${project.id}/configure`} className="button-secondary">
+            Configure
+          </Link>
+          <Link href={`/projects/${project.id}/extract`} className="button-secondary">
+            Extract
+          </Link>
+          <Link href={`/projects/${project.id}/review`} className="button-secondary">
+            Review
+          </Link>
+          <Link href={`/projects/${project.id}/publish`} className="button-primary">
+            Publish
+          </Link>
         </div>
       </div>
     </div>
