@@ -1,62 +1,90 @@
 'use client';
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { Project, FieldConfig, ExtractedField } from '@/lib/types';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { seedProjects } from '@/lib/mock-data';
 import { loadProjects, saveProjects } from '@/lib/storage';
+import { CTODProject, ExtractedField, FieldDefinition, ProjectStage } from '@/lib/types';
 
-interface ProjectContextType {
-  projects: Project[];
-  createProject: (payload: Pick<Project, 'name' | 'indication' | 'templateName' | 'pdfCount'>) => string;
-  updateFields: (projectId: string, fields: FieldConfig[]) => void;
-  updateExtractedFields: (projectId: string, fields: ExtractedField[], status?: Project['status']) => void;
-  getProject: (projectId: string) => Project | undefined;
-}
+type ProjectContextType = {
+  projects: CTODProject[];
+  createProject: (project: CTODProject) => void;
+  updateProject: (id: string, patch: Partial<CTODProject>) => void;
+  setFieldDefinitions: (id: string, fields: FieldDefinition[], stage?: ProjectStage) => void;
+  updateExtractedFields: (id: string, fields: ExtractedField[], stage?: ProjectStage) => void;
+  getProject: (id: string) => CTODProject | undefined;
+};
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
 
 export function ProjectProvider({ children }: { children: React.ReactNode }) {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [projects, setProjects] = useState<CTODProject[]>([]);
 
   useEffect(() => {
-    setProjects(loadProjects());
+    const stored = loadProjects();
+    if (stored.length > 0) {
+      setProjects(stored);
+    } else {
+      setProjects(seedProjects);
+    }
   }, []);
 
   useEffect(() => {
     saveProjects(projects);
   }, [projects]);
 
-  const value = useMemo<ProjectContextType>(() => ({
-    projects,
-    createProject: (payload) => {
-      const id = crypto.randomUUID();
-      const next: Project = {
-        id,
-        name: payload.name,
-        indication: payload.indication,
-        templateName: payload.templateName,
-        pdfCount: payload.pdfCount,
-        status: 'Draft',
-        createdAt: new Date().toISOString(),
-        fields: [],
-        extractedFields: [],
-      };
-      setProjects((prev) => [next, ...prev]);
-      return id;
-    },
-    updateFields: (projectId, fields) => {
-      setProjects((prev) => prev.map((project) => project.id === projectId ? { ...project, fields, status: 'Configured' } : project));
-    },
-    updateExtractedFields: (projectId, fields, status) => {
-      setProjects((prev) => prev.map((project) => project.id === projectId ? { ...project, extractedFields: fields, status: status ?? project.status } : project));
-    },
-    getProject: (projectId) => projects.find((project) => project.id === projectId),
-  }), [projects]);
+  const value = useMemo<ProjectContextType>(
+    () => ({
+      projects,
+      createProject: (project) => {
+        setProjects((prev) => [project, ...prev]);
+      },
+      updateProject: (id, patch) => {
+        setProjects((prev) =>
+          prev.map((project) =>
+            project.id === id ? { ...project, ...patch, updatedAt: new Date().toISOString() } : project
+          )
+        );
+      },
+      setFieldDefinitions: (id, fields, stage) => {
+        setProjects((prev) =>
+          prev.map((project) =>
+            project.id === id
+              ? {
+                  ...project,
+                  fieldDefinitions: fields,
+                  stage: stage ?? project.stage,
+                  updatedAt: new Date().toISOString(),
+                }
+              : project
+          )
+        );
+      },
+      updateExtractedFields: (id, fields, stage) => {
+        setProjects((prev) =>
+          prev.map((project) =>
+            project.id === id
+              ? {
+                  ...project,
+                  extractedFields: fields,
+                  stage: stage ?? project.stage,
+                  updatedAt: new Date().toISOString(),
+                }
+              : project
+          )
+        );
+      },
+      getProject: (id) => projects.find((project) => project.id === id),
+    }),
+    [projects]
+  );
 
   return <ProjectContext.Provider value={value}>{children}</ProjectContext.Provider>;
 }
 
 export function useProjects() {
-  const ctx = useContext(ProjectContext);
-  if (!ctx) throw new Error('useProjects must be used within ProjectProvider');
-  return ctx;
+  const context = useContext(ProjectContext);
+  if (!context) {
+    throw new Error('useProjects must be used within ProjectProvider');
+  }
+  return context;
 }
