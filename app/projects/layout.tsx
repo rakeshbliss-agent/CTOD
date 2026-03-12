@@ -1,5 +1,4 @@
 import './globals.css';
-import { ProjectProvider } from '@/components/project-provider';
 
 export const metadata = {
   title: 'CTOD Demo App',
@@ -13,9 +12,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
-        <ProjectProvider>{children}</ProjectProvider>
-      </body>
+      <body>{children}</body>
     </html>
   );
 }
