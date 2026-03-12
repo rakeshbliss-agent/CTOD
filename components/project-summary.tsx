@@ -8,7 +8,7 @@ export function ProjectSummary({ project }: { project: Project }) {
         <div>
           <div className="flex items-center gap-2">
             <h3 className="text-base font-semibold">{project.name}</h3>
-            <span className="badge bg-slate-100 text-slate-700">{project.status}</span>
+            <span className="badge bg-slate-100 text-slate-700">{project.stage}</span>
           </div>
           <div className="mt-2 text-sm text-slate-600">
             {project.indication} · {project.templateName} · {project.pdfCount} PDF(s)
