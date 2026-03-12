@@ -1,13 +1,16 @@
 import './globals.css';
-import type { Metadata } from 'next';
 import { ProjectProvider } from '@/components/project-provider';
 
-export const metadata: Metadata = {
-  title: 'CTOD Curator Demo',
-  description: 'Demo-first CTOD curation workbench',
+export const metadata = {
+  title: 'CTOD Demo App',
+  description: 'CTOD curation prototype',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
       <body>
